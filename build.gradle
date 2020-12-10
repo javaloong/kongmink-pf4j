@@ -1,0 +1,47 @@
+plugins {
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE' apply false
+    id 'org.unbroken-dome.test-sets' version '3.0.1' apply false
+}
+
+allprojects {
+    apply plugin: 'idea'
+    apply plugin: 'eclipse'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+    apply plugin: 'org.unbroken-dome.test-sets'
+    
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        }
+    }
+    
+    tasks.withType(JavaCompile) { options.encoding = "UTF-8" }
+    
+    repositories {
+        mavenLocal()
+        maven { url 'https://maven.aliyun.com/repository/public/' }
+        mavenCentral()
+    }
+    
+    testSets {
+        integrationTest { dirName = 'integration-test' }
+    }
+ 
+    project.integrationTest {
+        outputs.upToDateWhen { false }
+    }
+ 
+    check.dependsOn integrationTest
+    integrationTest.mustRunAfter test
+ 
+    tasks.withType(Test) {
+        reports.html.destination = file("${reporting.baseDir}/${name}")
+    }
+}
