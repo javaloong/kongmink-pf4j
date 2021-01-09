@@ -1,0 +1,20 @@
+plugins {
+    id 'java-library'
+}
+
+description = "pf4j-spring-boot-starter"
+
+dependencies {
+    api project(':pf4j-spring-boot')
+    
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation "org.springframework.boot:spring-boot-configuration-processor"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.springframework:spring-context-support"
+
+    implementation "org.apache.commons:commons-lang3"
+    implementation "commons-codec:commons-codec"
+
+    annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
+}

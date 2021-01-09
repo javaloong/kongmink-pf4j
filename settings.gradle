@@ -1,3 +1,4 @@
 rootProject.name = 'kongmink-pf4j'
 
 include 'pf4j-spring-boot'
+include 'pf4j-spring-boot-starter'
