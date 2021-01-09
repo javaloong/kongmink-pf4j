@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "spring.pf4j.controller.base-path",
+      "type": "java.lang.String",
+      "description": "Plugin manager controller base path",
+      "defaultValue": "/pf4j"
+    }
+  ]
+}
