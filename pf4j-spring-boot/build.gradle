@@ -1,0 +1,21 @@
+plugins {
+    id 'java-library'
+}
+
+description = "pf4j-spring-boot"
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot'
+    implementation "org.springframework:spring-webmvc"
+    implementation "org.apache.commons:commons-lang3"
+    
+    api "org.pf4j:pf4j:${pf4jVersion}"
+    
+    compileOnly "javax.servlet:javax.servlet-api"
+    
+    testImplementation "junit:junit"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.hamcrest:hamcrest-core"
+    testImplementation "org.hamcrest:hamcrest-library"
+    testImplementation "org.springframework:spring-test"
+}
