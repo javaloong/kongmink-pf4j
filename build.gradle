@@ -12,6 +12,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'org.unbroken-dome.test-sets'
+    apply plugin: 'maven-publish'
     
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -43,5 +44,21 @@ subprojects {
  
     tasks.withType(Test) {
         reports.html.destination = file("${reporting.baseDir}/${name}")
+    }
+    
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.allJava
+        classifier = 'sources'
+    }
+    
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                version = project.hasProperty('release') ? project.version - '-SNAPSHOT' : project.version
+                
+                from components.java
+                artifact sourcesJar
+            }
+        }
     }
 }
