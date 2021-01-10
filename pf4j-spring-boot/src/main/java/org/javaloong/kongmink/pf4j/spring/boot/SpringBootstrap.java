@@ -382,11 +382,11 @@ public class SpringBootstrap extends SpringApplication {
     }
 
     private String getProperties(Environment env, String propName, int index) {
-        String prop = env.getProperty(String.format("kongmink-plugin.%s[%s]", propName, index));
-        if (prop == null) prop = env.getProperty(String.format("kongmink-plugin.%s.%s", propName, index));
-        if (prop == null) prop = env.getProperty(String.format("kongmink-plugin.%s[%s]",
+        String prop = env.getProperty(String.format("pf4j-plugin.%s[%s]", propName, index));
+        if (prop == null) prop = env.getProperty(String.format("pf4j-plugin.%s.%s", propName, index));
+        if (prop == null) prop = env.getProperty(String.format("pf4j-plugin.%s[%s]",
                 String.join("-", StringUtils.splitByCharacterTypeCamelCase(propName)).toLowerCase(), index));
-        if (prop == null) prop = env.getProperty(String.format("kongmink-plugin.%s.%s",
+        if (prop == null) prop = env.getProperty(String.format("pf4j-plugin.%s.%s",
                 String.join("-", StringUtils.splitByCharacterTypeCamelCase(propName)).toLowerCase(), index));
         return prop;
     }
