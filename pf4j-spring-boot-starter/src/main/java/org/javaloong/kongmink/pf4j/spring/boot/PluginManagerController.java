@@ -28,18 +28,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
  */
 @RestController
+@RequestMapping(value = "${spring.pf4j.controller.base-path:/pf4j}/plugins")
 public class PluginManagerController {
 
     @Autowired
     private SpringBootPluginManager pluginManager;
 
-    @GetMapping(value = "${spring.pf4j.controller.base-path:/pf4j}/plugins")
+    @GetMapping
     public List<PluginInfo> list() {
         List<PluginWrapper> loadedPlugins = pluginManager.getPlugins();
 
@@ -75,25 +77,25 @@ public class PluginManagerController {
         return plugins;
     }
 
-    @PostMapping(value = "${spring.pf4j.controller.base-path:/pf4j}/plugins/{pluginId}/start")
+    @PostMapping("/{pluginId}/start")
     public int start(@PathVariable String pluginId) {
         pluginManager.startPlugin(pluginId);
         return 0;
     }
 
-    @PostMapping(value = "${spring.pf4j.controller.base-path:/pf4j}/plugins/{pluginId}/stop")
+    @PostMapping("/{pluginId}/stop")
     public int stop(@PathVariable String pluginId) {
         pluginManager.stopPlugin(pluginId);
         return 0;
     }
 
-    @PostMapping(value = "${spring.pf4j.controller.base-path:/pf4j}/plugins/{pluginId}/reload")
+    @PostMapping("/{pluginId}/reload")
     public int reload(@PathVariable String pluginId) {
         PluginState pluginState = pluginManager.reloadPlugins(pluginId);
         return pluginState == PluginState.STARTED ? 0 : 1;
     }
 
-    @PostMapping(value = "${spring.pf4j.controller.base-path:/pf4j}/plugins/reload")
+    @PostMapping("/reload")
     public int reloadAll() {
         pluginManager.reloadPlugins(false );
         return 0;
