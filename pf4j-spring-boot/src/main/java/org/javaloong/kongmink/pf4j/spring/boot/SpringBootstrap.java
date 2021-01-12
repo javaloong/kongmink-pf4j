@@ -57,6 +57,7 @@ public class SpringBootstrap extends SpringApplication {
 
     public static final String[] DEFAULT_EXCLUDE_CONFIGURATIONS = {
             "org.javaloong.kongmink.pf4j.spring.boot.pf4jAutoConfiguration",
+            "org.javaloong.kongmink.pf4j.spring.boot.pf4jMvcPatchAutoConfiguration",
             // Spring Web MVC
             "org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration",
             "org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration",
