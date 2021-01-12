@@ -1,1 +1,1 @@
-A lightweight agile application prototype framework.
+Provide support plugin oriented programming to Spring Boot. It is inspired by [SBP](https://github.com/hank-cp/sbp) and builds on top of [Pf4j](https://github.com/pf4j/pf4j) project.
