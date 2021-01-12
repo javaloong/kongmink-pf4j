@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 import org.javaloong.kongmink.pf4j.spring.boot.context.MainApplicationReadyListener;
 import org.javaloong.kongmink.pf4j.spring.boot.context.MainApplicationStartedListener;
 import org.pf4j.CompoundPluginLoader;
-import org.pf4j.DefaultPluginLoader;
+import org.pf4j.DevelopmentPluginLoader;
 import org.pf4j.JarPluginLoader;
 import org.pf4j.PluginClassLoader;
 import org.pf4j.PluginDescriptor;
@@ -110,7 +110,7 @@ public class pf4jAutoConfiguration {
 					}
 				} else {
 					return new CompoundPluginLoader()
-							.add(new DefaultPluginLoader(this) {
+							.add(new DevelopmentPluginLoader(this) {
 								@Override
 								protected PluginClassLoader createPluginClassLoader(Path pluginPath,
 																					PluginDescriptor pluginDescriptor) {
