@@ -49,16 +49,16 @@ import org.springframework.util.StringUtils;
 /**
  * pf4j main application auto configuration for Spring Boot
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
- * @see pf4jProperties
+ * @see Pf4jProperties
  */
 @Configuration
 @ConditionalOnClass({ PluginManager.class, SpringBootPluginManager.class })
-@ConditionalOnProperty(prefix = pf4jProperties.PREFIX, value = "enabled", havingValue = "true")
-@EnableConfigurationProperties({pf4jProperties.class, pf4jPluginProperties.class})
+@ConditionalOnProperty(prefix = Pf4jProperties.PREFIX, value = "enabled", havingValue = "true")
+@EnableConfigurationProperties({Pf4jProperties.class, Pf4jPluginProperties.class})
 @Import({MainApplicationStartedListener.class, MainApplicationReadyListener.class})
-public class pf4jAutoConfiguration {
+public class Pf4jAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(pf4jAutoConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(Pf4jAutoConfiguration.class);
     
 	@Bean
 	@ConditionalOnMissingBean(PluginStateListener.class)
@@ -82,7 +82,7 @@ public class pf4jAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean
-	public SpringBootPluginManager pluginManager(pf4jProperties properties) {
+	public SpringBootPluginManager pluginManager(Pf4jProperties properties) {
 		// Setup RuntimeMode
 		System.setProperty("pf4j.mode", properties.getRuntimeMode().toString());
 

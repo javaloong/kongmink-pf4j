@@ -20,10 +20,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Properties for Spring boot plugin
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
- * @see pf4jAutoConfiguration
+ * @see Pf4jAutoConfiguration
  */
-@ConfigurationProperties(prefix = pf4jPluginProperties.PREFIX)
-public class pf4jPluginProperties {
+@ConfigurationProperties(prefix = Pf4jPluginProperties.PREFIX)
+public class Pf4jPluginProperties {
 
 	public static final String PREFIX = "pf4j-plugin";
 

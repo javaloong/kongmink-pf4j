@@ -29,14 +29,14 @@ public class PropertyPluginStatusProvider implements PluginStatusProvider {
     private List<String> enabledPlugins;
     private List<String> disabledPlugins;
 
-    public PropertyPluginStatusProvider(pf4jProperties properties) {
+    public PropertyPluginStatusProvider(Pf4jProperties properties) {
         this.enabledPlugins = properties.getEnabledPlugins() != null
                 ? Arrays.asList(properties.getEnabledPlugins()) : new ArrayList<>();
         this.disabledPlugins = properties.getDisabledPlugins() != null
                 ? Arrays.asList(properties.getDisabledPlugins()) : new ArrayList<>();
     }
 
-    public static boolean isPropertySet(pf4jProperties properties) {
+    public static boolean isPropertySet(Pf4jProperties properties) {
         return properties.getEnabledPlugins() != null && properties.getEnabledPlugins().length > 0
                 || properties.getDisabledPlugins() != null && properties.getDisabledPlugins().length > 0;
     }

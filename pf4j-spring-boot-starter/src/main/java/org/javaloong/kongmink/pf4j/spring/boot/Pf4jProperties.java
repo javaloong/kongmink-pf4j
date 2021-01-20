@@ -28,10 +28,10 @@ import java.util.Map;
 /**
  * Properties for pf4j main application
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
- * @see pf4jAutoConfiguration
+ * @see Pf4jAutoConfiguration
  */
-@ConfigurationProperties(prefix = pf4jProperties.PREFIX)
-public class pf4jProperties {
+@ConfigurationProperties(prefix = Pf4jProperties.PREFIX)
+public class Pf4jProperties {
 
 	public static final String PREFIX = "spring.pf4j";
 

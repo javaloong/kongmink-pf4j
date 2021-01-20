@@ -1,4 +1,4 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  org.javaloong.kongmink.pf4j.spring.boot.pf4jAutoConfiguration,\
-  org.javaloong.kongmink.pf4j.spring.boot.pf4jMvcPatchAutoConfiguration
+  org.javaloong.kongmink.pf4j.spring.boot.Pf4jAutoConfiguration,\
+  org.javaloong.kongmink.pf4j.spring.boot.Pf4jMvcPatchAutoConfiguration

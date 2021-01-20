@@ -33,12 +33,12 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 /**
  * pf4j main application auto configuration for Spring Boot
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
- * @see pf4jProperties
+ * @see Pf4jProperties
  */
 @Configuration
 @ConditionalOnClass({ PluginManager.class, SpringBootPluginManager.class })
-@ConditionalOnProperty(prefix = pf4jProperties.PREFIX, value = "enabled", havingValue = "true")
-public class pf4jMvcPatchAutoConfiguration {
+@ConditionalOnProperty(prefix = Pf4jProperties.PREFIX, value = "enabled", havingValue = "true")
+public class Pf4jMvcPatchAutoConfiguration {
 
 	@Bean
 	@ConditionalOnMissingBean(WebMvcRegistrations.class)
