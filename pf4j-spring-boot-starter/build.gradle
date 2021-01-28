@@ -14,9 +14,15 @@ dependencies {
 
     implementation "org.apache.commons:commons-lang3"
     implementation "commons-codec:commons-codec"
+    
+    api "org.pf4j:pf4j-update:${pf4jUpdateVersion}"
 
     annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
 }
 
 compileJava.dependsOn(processResources)
