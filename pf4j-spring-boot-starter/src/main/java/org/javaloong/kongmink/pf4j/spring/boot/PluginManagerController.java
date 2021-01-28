@@ -16,6 +16,7 @@
 package org.javaloong.kongmink.pf4j.spring.boot;
 
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
+ * @author Xu Cheng
  */
 @RestController
 @RequestMapping(value = "${spring.pf4j.controller.base-path:/pf4j}/plugins")
@@ -78,27 +80,25 @@ public class PluginManagerController {
     }
 
     @PostMapping("/{pluginId}/start")
-    public int start(@PathVariable String pluginId) {
-        pluginManager.startPlugin(pluginId);
-        return 0;
+    public Object start(@PathVariable String pluginId) {
+        PluginState pluginState = pluginManager.startPlugin(pluginId);
+        return Collections.singletonMap("state", pluginState);
     }
 
     @PostMapping("/{pluginId}/stop")
-    public int stop(@PathVariable String pluginId) {
-        pluginManager.stopPlugin(pluginId);
-        return 0;
+    public Object stop(@PathVariable String pluginId) {
+        PluginState pluginState = pluginManager.stopPlugin(pluginId);
+        return Collections.singletonMap("state", pluginState);
     }
 
     @PostMapping("/{pluginId}/reload")
-    public int reload(@PathVariable String pluginId) {
+    public Object reload(@PathVariable String pluginId) {
         PluginState pluginState = pluginManager.reloadPlugins(pluginId);
-        return pluginState == PluginState.STARTED ? 0 : 1;
+        return Collections.singletonMap("state", pluginState);
     }
 
     @PostMapping("/reload")
-    public int reloadAll() {
-        pluginManager.reloadPlugins(false );
-        return 0;
+    public void reloadAll() {
+        pluginManager.reloadPlugins(false);
     }
-
 }
