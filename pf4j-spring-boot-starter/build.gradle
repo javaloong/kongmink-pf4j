@@ -7,18 +7,18 @@ description = "pf4j-spring-boot-starter"
 dependencies {
     api project(':pf4j-spring-boot')
     
-    implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "org.springframework.boot:spring-boot-starter-aop"
-    implementation "org.springframework.boot:spring-boot-autoconfigure"
-    implementation "org.springframework:spring-context-support"
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure'
+    implementation 'org.springframework:spring-context-support'
 
-    implementation "org.apache.commons:commons-lang3"
-    implementation "commons-codec:commons-codec"
+    implementation 'org.apache.commons:commons-lang3'
+    implementation 'commons-codec:commons-codec'
     
     api "org.pf4j:pf4j-update:${pf4jUpdateVersion}"
 
-    annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
