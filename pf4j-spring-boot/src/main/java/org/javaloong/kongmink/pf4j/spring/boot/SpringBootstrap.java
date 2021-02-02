@@ -17,6 +17,7 @@ package org.javaloong.kongmink.pf4j.spring.boot;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.javaloong.kongmink.pf4j.spring.boot.env.ConfigurationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
  * to initialize environment in spring-boot style.
  *
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
+ * @author Xu Cheng
  */
 public class SpringBootstrap extends SpringApplication {
 
@@ -261,6 +263,16 @@ public class SpringBootstrap extends SpringApplication {
                 plugin.getWrapper().getPluginManager()).getProfiles();
         if (!ArrayUtils.isEmpty(profiles)) environment.setActiveProfiles(profiles);
         environment.getPropertySources().addLast(new ExcludeConfigurations());
+        
+        // load external plugin configuration properties
+        String pluginId = plugin.getWrapper().getPluginId();
+        ConfigurationRepository configurationRepository = ((SpringBootPluginManager)
+                plugin.getWrapper().getPluginManager()).getConfigurationRepository();
+        Map<String, Object> pluginProperties = configurationRepository.get(pluginId);
+        if(!pluginProperties.isEmpty()) {
+            environment.getPropertySources().addFirst(new MapPropertySource(
+                    "Plugin Configurations", pluginProperties));
+        }
     }
 
     @Override

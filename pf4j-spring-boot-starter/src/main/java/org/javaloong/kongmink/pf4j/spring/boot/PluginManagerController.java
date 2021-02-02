@@ -18,6 +18,7 @@ package org.javaloong.kongmink.pf4j.spring.boot;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.javaloong.kongmink.pf4j.spring.boot.model.PluginInfo;
@@ -26,6 +27,7 @@ import org.pf4j.PluginRuntimeException;
 import org.pf4j.PluginState;
 import org.pf4j.PluginWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,6 +80,22 @@ public class PluginManagerController {
 
         return plugins;
     }
+    
+    @GetMapping("/{pluginId}/config")
+    public Map<String, Object> getConfig(@PathVariable String pluginId) {
+        return pluginManager.getConfigurationRepository().get(pluginId);
+    }
+    
+    @PostMapping("/{pluginId}/config")
+    public void setConfig(@PathVariable String pluginId, Map<String, Object> properties) {
+        pluginManager.getConfigurationRepository().save(pluginId, properties);
+    }
+    
+    @DeleteMapping("/{pluginId}/config")
+    public Object deleteConfig(@PathVariable String pluginId) {
+        boolean result = pluginManager.getConfigurationRepository().delete(pluginId);
+        return Collections.singletonMap("result", result);
+    }
 
     @PostMapping("/{pluginId}/start")
     public Object start(@PathVariable String pluginId) {
@@ -101,4 +119,5 @@ public class PluginManagerController {
     public void reloadAll() {
         pluginManager.reloadPlugins(false);
     }
+
 }

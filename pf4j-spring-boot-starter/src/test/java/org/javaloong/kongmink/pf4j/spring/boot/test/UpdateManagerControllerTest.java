@@ -64,8 +64,8 @@ public class UpdateManagerControllerTest {
         when(updateManager.installPlugin(anyString(), anyString())).thenReturn(true);
         
         mockMvc.perform(post("/api/updates/install/plugin1/1.0.0"))
-            .andExpect(jsonPath("$.result", is(true)))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.result", is(true)));
     }
     
     @Test
@@ -73,8 +73,8 @@ public class UpdateManagerControllerTest {
         when(updateManager.uninstallPlugin(anyString())).thenReturn(true);
         
         mockMvc.perform(post("/api/updates/uninstall/plugin1"))
-            .andExpect(jsonPath("$.result", is(true)))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.result", is(true)));
     }
     
     private List<PluginInfo> createPlugins(){

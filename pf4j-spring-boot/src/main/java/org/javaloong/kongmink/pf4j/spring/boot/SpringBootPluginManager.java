@@ -1,7 +1,24 @@
+/*
+ * Copyright (C) 2020-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.javaloong.kongmink.pf4j.spring.boot;
 
 import org.javaloong.kongmink.pf4j.spring.boot.context.PluginStartingError;
 import org.javaloong.kongmink.pf4j.spring.boot.context.PluginStateChangedEvent;
+import org.javaloong.kongmink.pf4j.spring.boot.env.ConfigurationRepository;
+import org.javaloong.kongmink.pf4j.spring.boot.env.DefaultConfigurationRepository;
 import org.pf4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,12 +29,14 @@ import org.springframework.context.support.GenericApplicationContext;
 
 import javax.annotation.PostConstruct;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
  * PluginManager to hold the main ApplicationContext
  * 
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
+ * @author Xu Cheng
  */
 public class SpringBootPluginManager extends DefaultPluginManager implements ApplicationContextAware {
 
@@ -29,6 +48,7 @@ public class SpringBootPluginManager extends DefaultPluginManager implements App
     private boolean autoStartPlugin = true;
     private String[] profiles;
     private PluginRepository pluginRepository;
+    private ConfigurationRepository configurationRepository;
     private final Map<String, PluginStartingError> startingErrors = new HashMap<>();
 
     public SpringBootPluginManager() {
@@ -62,6 +82,21 @@ public class SpringBootPluginManager extends DefaultPluginManager implements App
 
     public PluginRepository getPluginRepository() {
         return pluginRepository;
+    }
+    
+    protected ConfigurationRepository createConfigurationRepository() {
+        String configDir = System.getProperty(PLUGINS_DIR_CONFIG_PROPERTY_NAME);
+        Path configPath = configDir != null
+            ? Paths.get(configDir)
+            : getPluginsRoots().stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("No pluginsRoot configured"));
+        
+        return new DefaultConfigurationRepository(configPath);
+    }
+    
+    public ConfigurationRepository getConfigurationRepository() {
+        return configurationRepository;
     }
 
     public void setAutoStartPlugin(boolean autoStartPlugin) {

@@ -2,6 +2,7 @@ package org.javaloong.kongmink.pf4j.spring.boot.test;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -9,9 +10,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 
 import org.javaloong.kongmink.pf4j.spring.boot.PluginManagerController;
 import org.javaloong.kongmink.pf4j.spring.boot.SpringBootPluginManager;
+import org.javaloong.kongmink.pf4j.spring.boot.env.ConfigurationRepository;
 import org.junit.jupiter.api.Test;
 import org.pf4j.DefaultPluginDescriptor;
 import org.pf4j.PluginDescriptor;
@@ -24,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(PluginManagerController.class)
@@ -54,6 +59,44 @@ public class PluginManagerControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$", hasSize(1)))
             .andExpect(jsonPath("$[0].pluginId", is("plugin1")));
+    }
+    
+    @Test
+    public void getConfig_ShouldReturnPluginConfigProperties() throws Exception{
+        Map<String, Object> map = Collections.singletonMap("key1", "value1");
+        ConfigurationRepository configurationRepository = mock(ConfigurationRepository.class);
+        when(pluginManager.getConfigurationRepository()).thenReturn(configurationRepository);
+        when(configurationRepository.get(anyString())).thenReturn(map);
+        
+        mockMvc.perform(get("/api/plugins/plugin1/config"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.key1", is("value1")));
+    }
+    
+    @Test
+    public void setConfig_ShouldReturnHttpStatusOk() throws Exception{
+        ConfigurationRepository configurationRepository = mock(ConfigurationRepository.class);
+        when(pluginManager.getConfigurationRepository()).thenReturn(configurationRepository);
+        doNothing().when(configurationRepository).save(anyString(), anyMap());
+        
+        Map<String, Object> map = Collections.singletonMap("key1", "value1");
+        mockMvc.perform(post("/api/plugins/plugin1/config")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(TestUtils.convertObjectToJsonBytes(map)))
+            .andDo(print())
+            .andExpect(status().isOk());
+    }
+    
+    @Test
+    public void deleteConfig_ShouldReturnHttpStatusOk() throws Exception{
+        ConfigurationRepository configurationRepository = mock(ConfigurationRepository.class);
+        when(pluginManager.getConfigurationRepository()).thenReturn(configurationRepository);
+        when(configurationRepository.delete(anyString())).thenReturn(true);
+        
+        mockMvc.perform(delete("/api/plugins/plugin1/config"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.result", is(true)));
     }
     
     @Test
