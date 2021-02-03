@@ -296,7 +296,7 @@ public class SpringBootPluginManager extends DefaultPluginManager implements App
     public PluginState reloadPlugins(String pluginId) {
         PluginWrapper plugin = getPlugin(pluginId);
         doStopPlugin(pluginId, false);
-        unloadPlugin(pluginId);
+        unloadPlugin(pluginId, false);
         try {
             loadPlugin(plugin.getPluginPath());
         } catch (Exception ex) {
