@@ -305,5 +305,12 @@ public class SpringBootPluginManager extends DefaultPluginManager implements App
 
         return doStartPlugin(pluginId, true);
     }
+    
+    @Override
+    protected void initialize() {
+        super.initialize();
+        
+        this.configurationRepository = createConfigurationRepository();
+    }
 
 }
