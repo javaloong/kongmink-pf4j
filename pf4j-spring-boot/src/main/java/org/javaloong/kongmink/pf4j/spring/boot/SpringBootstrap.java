@@ -18,6 +18,8 @@ package org.javaloong.kongmink.pf4j.spring.boot;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.javaloong.kongmink.pf4j.spring.boot.env.ConfigurationRepository;
+import org.pf4j.PluginDependency;
+import org.pf4j.PluginWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -208,7 +210,9 @@ public class SpringBootstrap extends SpringApplication {
 
     private final ClassLoader pluginClassLoader;
 
-    private final HashSet<String> sharedBeanNames = new HashSet<>();
+    private final HashSet<String> importBeanNames = new HashSet<>();
+    
+    private final HashSet<Class<?>> importBeanClasses = new HashSet<>();
 
     private final HashSet<String> importedBeanNames = new HashSet<>();
 
@@ -241,8 +245,17 @@ public class SpringBootstrap extends SpringApplication {
      * Beans that wanted to be shared from main {@link ApplicationContext}.
      * Note that this method only takes effect before {@link #run(String...)} method.
      */
-    public SpringBootstrap addSharedBeanName(String beanName) {
-        this.sharedBeanNames.add(beanName);
+    public SpringBootstrap importBean(String beanName) {
+        this.importBeanNames.add(beanName);
+        return this;
+    }
+
+    /**
+     * Beans that wanted to be shared from main {@link ApplicationContext}.
+     * Note that this method only takes effect before {@link #run(String...)} method.
+     */
+    public SpringBootstrap importBean(Class<?> beanClass) {
+        this.importBeanClasses.add(beanClass);
         return this;
     }
 
@@ -330,9 +343,22 @@ public class SpringBootstrap extends SpringApplication {
         applicationContext.getBeanFactory().registerSingleton(BEAN_PLUGIN, plugin);
         applicationContext.getBeanFactory().autowireBean(plugin);
 
-        if (!CollectionUtils.isEmpty(sharedBeanNames)) {
-            for (String beanName : sharedBeanNames) {
-                registerBeanFromMainContext(applicationContext, beanName);
+        if (!CollectionUtils.isEmpty(importBeanNames)) {
+            for (String beanName : importBeanNames) {
+                // try to import bean from main applicationContext first
+                boolean imported = importBeanFromMainContext(applicationContext, beanName);
+                // not found, try to import bean from dependent applicationContext
+                if (!imported) imported = importBeanFromDependentPlugin(applicationContext, beanName);
+                if (!imported) log.error("Bean {} is not found", beanName);
+            }
+        }
+        if (!CollectionUtils.isEmpty(importBeanClasses)) {
+            for (Class<?> beanClass : importBeanClasses) {
+                // try to import bean from main applicationContext first
+                boolean imported = importBeanFromMainContext(applicationContext, beanClass);
+                // not found, try to import bean from dependent applicationContext
+                if (!imported) imported = importBeanFromDependentPlugin(applicationContext, beanClass);
+                if (!imported) log.error("Bean {} is not found", beanClass);
             }
         }
 
@@ -363,24 +389,31 @@ public class SpringBootstrap extends SpringApplication {
         }
     }
 
-    protected void registerBeanFromMainContext(AbstractApplicationContext applicationContext,
-                                               String beanName) {
+    protected boolean importBean(ApplicationContext sourceApplicationContext,
+                                 AbstractApplicationContext applicationContext,
+                                 String beanName) {
         try {
-            Object bean = mainApplicationContext.getBean(beanName);
+            Object bean = sourceApplicationContext.getBean(beanName);
             applicationContext.getBeanFactory().registerSingleton(beanName, bean);
             applicationContext.getBeanFactory().autowireBean(bean);
             importedBeanNames.add(beanName);
-            log.info("Bean {} is registered from main ApplicationContext", beanName);
-
+            log.info("Bean {} is imported from {} ApplicationContext", beanName,
+                    (sourceApplicationContext == mainApplicationContext ? "app" : "plugin"));
+            return true;
+        
         } catch (NoSuchBeanDefinitionException ex) {
-            log.warn("Bean {} is not found in main ApplicationContext", beanName);
+            return false;
         }
     }
 
-    protected void registerBeanFromMainContext(AbstractApplicationContext applicationContext,
-                                               Class<?> beanClass) {
+    protected boolean importBean(ApplicationContext sourceApplicationContext,
+                                 AbstractApplicationContext applicationContext,
+                                 Class<?> beanClass) {
         try {
-            Map<String, ?> beans = mainApplicationContext.getBeansOfType(beanClass);
+            Map<String, ?> beans = sourceApplicationContext.getBeansOfType(beanClass);
+            if (beans.size() <= 0) {
+                return false;
+            }
             for (String beanName : beans.keySet()) {
                 if (applicationContext.containsBean(beanName)) continue;
                 Object bean = beans.get(beanName);
@@ -388,10 +421,44 @@ public class SpringBootstrap extends SpringApplication {
                 importedBeanNames.add(beanName);
                 applicationContext.getBeanFactory().autowireBean(bean);
             }
-            log.info("Bean {} is registered from main ApplicationContext", beanClass.getSimpleName());
+            log.info("Bean {} is registered from {} ApplicationContext", beanClass.getSimpleName(),
+                        (sourceApplicationContext == mainApplicationContext ? "app" : "plugin"));
+            return true;
         } catch (NoSuchBeanDefinitionException ex) {
-            log.warn("Bean {} is not found in main ApplicationContext", beanClass.getSimpleName());
+            return false;
         }
+    }
+
+    protected boolean importBeanFromMainContext(AbstractApplicationContext applicationContext,
+                                                String beanName) {
+        return importBean(mainApplicationContext, applicationContext, beanName);
+    }
+
+    protected boolean importBeanFromMainContext(AbstractApplicationContext applicationContext,
+                                                Class<?> beanClass) {
+        return importBean(mainApplicationContext, applicationContext, beanClass);
+    }
+
+    protected boolean importBeanFromDependentPlugin(AbstractApplicationContext applicationContext,
+                                                    String beanName) {
+        for (PluginDependency dependency : plugin.getWrapper().getDescriptor().getDependencies()) {
+            PluginWrapper dependentPlugin = plugin.getPluginManager().getPlugin(dependency.getPluginId());
+            if (dependentPlugin == null) continue;
+            SpringBootPlugin sbPlugin = (SpringBootPlugin) dependentPlugin.getPlugin();
+            if (importBean(sbPlugin.getApplicationContext(), applicationContext, beanName)) return true;
+        }
+        return false;
+    }
+
+    protected boolean importBeanFromDependentPlugin(AbstractApplicationContext applicationContext,
+                                                    Class<?> beanClass) {
+        for (PluginDependency dependency : plugin.getWrapper().getDescriptor().getDependencies()) {
+            PluginWrapper dependentPlugin = plugin.getPluginManager().getPlugin(dependency.getPluginId());
+            if (dependentPlugin == null) continue;
+            SpringBootPlugin sbPlugin = (SpringBootPlugin) dependentPlugin.getPlugin();
+            if (importBean(sbPlugin.getApplicationContext(), applicationContext, beanClass)) return true;
+        }
+        return false;
     }
 
     private String getProperties(Environment env, String propName, int index) {
