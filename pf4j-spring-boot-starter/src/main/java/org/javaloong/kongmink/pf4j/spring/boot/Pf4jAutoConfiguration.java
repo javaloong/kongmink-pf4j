@@ -15,6 +15,8 @@
  */
 package org.javaloong.kongmink.pf4j.spring.boot;
 
+import static org.pf4j.AbstractPluginManager.*;
+
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.nio.file.Path;
@@ -84,19 +86,22 @@ public class Pf4jAutoConfiguration {
 	@ConditionalOnMissingBean
 	public SpringBootPluginManager pluginManager(Pf4jProperties properties) {
 		// Setup RuntimeMode
-		System.setProperty("pf4j.mode", properties.getRuntimeMode().toString());
+		System.setProperty(MODE_PROPERTY_NAME, properties.getRuntimeMode().toString());
 
 		// Setup Plugin folder
-		String pluginsRoot = StringUtils.hasText(properties.getPluginsRoot()) ? properties.getPluginsRoot() : "plugins";
-		System.setProperty("pf4j.pluginsDir", pluginsRoot);
+		String pluginsRoot = (RuntimeMode.DEPLOYMENT == properties.getRuntimeMode()) ? 
+		        DEFAULT_PLUGINS_DIR : DEVELOPMENT_PLUGINS_DIR;
+		if(StringUtils.hasText(properties.getPluginsRoot())) {
+		    pluginsRoot = properties.getPluginsRoot();
+		}
+		System.setProperty(PLUGINS_DIR_PROPERTY_NAME, pluginsRoot);
 		String appHome = System.getProperty("app.home");
 		if (RuntimeMode.DEPLOYMENT == properties.getRuntimeMode()
 				&& StringUtils.hasText(appHome)) {
-			System.setProperty("pf4j.pluginsDir", appHome + File.separator + pluginsRoot);
+			System.setProperty(PLUGINS_DIR_PROPERTY_NAME, appHome + File.separator + pluginsRoot);
 		}
 
-		SpringBootPluginManager pluginManager = new SpringBootPluginManager(
-				new File(pluginsRoot).toPath()) {
+		SpringBootPluginManager pluginManager = new SpringBootPluginManager() {
 			@Override
 			protected PluginLoader createPluginLoader() {
 				if (properties.getCustomPluginLoader() != null) {
