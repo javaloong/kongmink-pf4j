@@ -31,11 +31,23 @@ import javax.sql.DataSource;
  * duplicated resource retaining.
  * 
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
+ * @author Xu Cheng
  */
 public class SharedDataSourceSpringBootstrap extends SpringBootstrap {
 
+    private boolean tmShared = false;
+    
     public SharedDataSourceSpringBootstrap(SpringBootPlugin plugin, Class<?>... primarySources) {
         super(plugin, primarySources);
+    }
+    
+    /**
+     * Transaction manager bean that wanted to be shared from main {@link ApplicationContext}.
+     * Note that this method only takes effect before {@link #run(String...)} method.
+     */
+    public SharedDataSourceSpringBootstrap importTransactionManager() {
+        this.tmShared = true;
+        return this;
     }
 
     @Override
@@ -51,7 +63,9 @@ public class SharedDataSourceSpringBootstrap extends SpringBootstrap {
                 (AnnotationConfigApplicationContext) super.createApplicationContext();
         // share dataSource
         importBeanFromMainContext(applicationContext, DataSource.class);
-        importBeanFromMainContext(applicationContext, "transactionManager");
+        if(tmShared) {
+            importBeanFromMainContext(applicationContext, "transactionManager");
+        }
         return applicationContext;
     }
 
