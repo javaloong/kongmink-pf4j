@@ -220,6 +220,8 @@ public class SpringBootstrap extends SpringApplication {
     private List<String> pluginFirstClasses;
 
     private List<String> pluginOnlyResources;
+    
+    private boolean pluginConfigEnabled;
 
     /**
      * Constructor should be the only thing need to take care for this Class.
@@ -275,16 +277,6 @@ public class SpringBootstrap extends SpringApplication {
                 plugin.getWrapper().getPluginManager()).getProfiles();
         if (!ArrayUtils.isEmpty(profiles)) environment.setActiveProfiles(profiles);
         environment.getPropertySources().addLast(new ExcludeConfigurations());
-        
-        // load external plugin configuration properties
-        String pluginId = plugin.getWrapper().getPluginId();
-        ConfigurationRepository configurationRepository = ((SpringBootPluginManager)
-                plugin.getWrapper().getPluginManager()).getConfigurationRepository();
-        Map<String, Object> pluginProperties = configurationRepository.get(pluginId);
-        if(!pluginProperties.isEmpty()) {
-            environment.getPropertySources().addFirst(new MapPropertySource(
-                    "Plugin Configurations", pluginProperties));
-        }
     }
 
     @Override
@@ -310,6 +302,23 @@ public class SpringBootstrap extends SpringApplication {
                 pluginOnlyResources.add(pluginOnlyResourcesProp);
             }
         } while (pluginOnlyResourcesProp != null);
+        
+        pluginConfigEnabled = getProperties(environment, "pluginConfigEnabled", Boolean.class, false);
+        // load external plugin configuration properties
+        if (pluginConfigEnabled) {
+            configurePluginPropertySources(environment);
+        }
+    }
+    
+    protected void configurePluginPropertySources(ConfigurableEnvironment environment) {
+        String pluginId = plugin.getWrapper().getPluginId();
+        ConfigurationRepository configurationRepository = ((SpringBootPluginManager)
+            plugin.getWrapper().getPluginManager()).getConfigurationRepository();
+        Map<String, Object> pluginProperties = configurationRepository.get(pluginId);
+        if(!pluginProperties.isEmpty()) {
+            environment.getPropertySources().addFirst(new MapPropertySource(
+                "Plugin Configurations", pluginProperties));
+        }
     }
 
     /** Override this methods to customize excluded spring boot configuration */
@@ -467,6 +476,14 @@ public class SpringBootstrap extends SpringApplication {
                 String.join("-", StringUtils.splitByCharacterTypeCamelCase(propName)).toLowerCase(), index));
         if (prop == null) prop = env.getProperty(String.format("pf4j-plugin.%s.%s",
                 String.join("-", StringUtils.splitByCharacterTypeCamelCase(propName)).toLowerCase(), index));
+        return prop;
+    }
+    
+    private <T> T getProperties(Environment env, String propName, Class<T> targetType, T defaultValue) {
+        T prop = env.getProperty(String.format("pf4j-plugin.%s", propName), targetType);
+        if (prop == null) prop = env.getProperty(String.format("pf4j-plugin.%s",
+                String.join("-", StringUtils.splitByCharacterTypeCamelCase(propName)).toLowerCase()), 
+                targetType, defaultValue);
         return prop;
     }
 
