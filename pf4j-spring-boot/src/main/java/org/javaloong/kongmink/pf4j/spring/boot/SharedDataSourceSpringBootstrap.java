@@ -44,6 +44,7 @@ public class SharedDataSourceSpringBootstrap extends SpringBootstrap {
     /**
      * Transaction manager bean that wanted to be shared from main {@link ApplicationContext}.
      * Note that this method only takes effect before {@link #run(String...)} method.
+     * @return the current bootstrap
      */
     public SharedDataSourceSpringBootstrap importTransactionManager() {
         this.tmShared = true;

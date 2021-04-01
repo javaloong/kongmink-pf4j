@@ -228,6 +228,7 @@ public class SpringBootstrap extends SpringApplication {
      * Generally new an instance and {@link #run(String...)} it
      * in {@link SpringBootPlugin#createSpringBootstrap()} method.
      *
+     * @param plugin the plugin for Spring Boot 
      * @param primarySources {@link SpringApplication} that annotated with @SpringBootApplication
      */
     public SpringBootstrap(SpringBootPlugin plugin, Class<?>... primarySources) {
@@ -245,6 +246,8 @@ public class SpringBootstrap extends SpringApplication {
     /**
      * Beans that wanted to be shared from main {@link ApplicationContext}.
      * Note that this method only takes effect before {@link #run(String...)} method.
+     * @param beanName the bean name
+     * @return the current bootstrap
      */
     public SpringBootstrap importBean(String beanName) {
         this.importBeanNames.add(beanName);
@@ -254,6 +257,8 @@ public class SpringBootstrap extends SpringApplication {
     /**
      * Beans that wanted to be shared from main {@link ApplicationContext}.
      * Note that this method only takes effect before {@link #run(String...)} method.
+     * @param beanClass the bean class
+     * @return the current bootstrap
      */
     public SpringBootstrap importBean(Class<?> beanClass) {
         this.importBeanClasses.add(beanClass);
@@ -263,6 +268,9 @@ public class SpringBootstrap extends SpringApplication {
     /**
      * Properties that need to be set when this application is started as a plugin.
      * Note that this method only takes effect before {@link #run(String...)} method.
+     * @param name the property name
+     * @param value the property value
+     * @return the current bootstrap
      */
     public SpringBootstrap addPresetProperty(String name, Object value) {
         this.presetProperties.put(name, value);
@@ -321,11 +329,18 @@ public class SpringBootstrap extends SpringApplication {
         }
     }
 
-    /** Override this methods to customize excluded spring boot configuration */
+    /** 
+     * Override this methods to customize excluded spring boot configuration
+     * @return the exclude configurations
+     */
     protected String[] getExcludeConfigurations() {
         return DEFAULT_EXCLUDE_CONFIGURATIONS;
     }
 
+    /** 
+     * Override this methods to customize excluded spring boot application listeners
+     * @return the exclude application listeners
+     */
     protected String[] getExcludeApplicationListeners() {
         return DEFAULT_EXCLUDE_APPLICATION_LISTENERS;
     }
