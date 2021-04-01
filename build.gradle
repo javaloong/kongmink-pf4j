@@ -13,6 +13,7 @@ subprojects {
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'org.unbroken-dome.test-sets'
     apply plugin: 'maven-publish'
+    apply plugin: 'signing'
     
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -51,6 +52,11 @@ subprojects {
         classifier = 'sources'
     }
     
+    task javadocJar(type: Jar) {
+        from javadoc
+        classifier = 'javadoc'
+    }
+    
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -58,7 +64,56 @@ subprojects {
                 
                 from components.java
                 artifact sourcesJar
+                artifact javadocJar
+                pom {
+                    name = project.name
+                    description = 'Plugin framework for Spring Boot based on pf4j.'
+                    url = 'https://github.com/javaloong/kongmink-pf4j'
+                    organization {
+                        name = 'org.javaloong'
+                        url = 'https://javaloong.org'
+                    }
+                    issueManagement {
+                        system = 'GitHub'
+                        url = 'https://github.com/javaloong/kongmink-pf4j/issues'
+                    }
+                    license {
+                        name = 'Apache License 2.0'
+                        url = 'https://github.com/javaloong/kongmink-pf4j/blob/master/LICENSE'
+                        distribution = 'repo'
+                    }
+                    scm {
+                        url = 'https://github.com/javaloong/kongmink-pf4j'
+                        connection = 'scm:git:git://github.com/javaloong/kongmink-pf4j.git'
+                        developerConnection = 'scm:git:ssh://git@github.com:javaloong/kongmink-pf4j.git'
+                    }
+                    developers {
+                        developer {
+                            name = 'tutunannan'
+                            email = 'bd66_6@hotmail.com'
+                        }
+                    }
+                }
+                repositories {
+                    maven {
+                        def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots"
+                        def stagingRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+                        url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : stagingRepoUrl
+                        credentials {
+                            username sonatypeUsername
+                            password sonatypePassword
+                        }
+                    }
+                }
             }
         }
+    }
+    
+    signing {
+        sign publishing.publications.mavenJava
+    }
+    
+    javadoc {
+        options.addStringOption("charset", "UTF-8")
     }
 }

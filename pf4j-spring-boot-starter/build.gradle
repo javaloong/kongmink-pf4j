@@ -6,6 +6,7 @@ description = "pf4j-spring-boot-starter"
 
 dependencies {
     api project(':pf4j-spring-boot')
+    api "org.pf4j:pf4j-update:${pf4jUpdateVersion}"
     
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-aop'
@@ -14,8 +15,6 @@ dependencies {
 
     implementation 'org.apache.commons:commons-lang3'
     implementation 'commons-codec:commons-codec'
-    
-    api "org.pf4j:pf4j-update:${pf4jUpdateVersion}"
 
     annotationProcessor 'org.springframework.boot:spring-boot-autoconfigure-processor'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
