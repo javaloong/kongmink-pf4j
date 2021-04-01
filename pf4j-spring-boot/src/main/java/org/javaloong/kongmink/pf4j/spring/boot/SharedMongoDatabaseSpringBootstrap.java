@@ -19,9 +19,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.data.mongodb.MongoDatabaseFactory;
 
 /**
- * Demonstrate how to share {@link MongoDbFactory} from main {@link ApplicationContext},
+ * Demonstrate how to share {@link MongoDatabaseFactory} from main {@link ApplicationContext},
  * so plugin could use the same database as main application and share database connection resource,
  * e.g. connection pool, transaction, etc.
  *
@@ -30,9 +31,9 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  * 
  * @author Xu Cheng
  */
-public class SharedMongoSpringBootstrap extends SpringBootstrap {
+public class SharedMongoDatabaseSpringBootstrap extends SpringBootstrap {
 
-    public SharedMongoSpringBootstrap(SpringBootPlugin plugin, Class<?>... primarySources) {
+    public SharedMongoDatabaseSpringBootstrap(SpringBootPlugin plugin, Class<?>... primarySources) {
         super(plugin, primarySources);
     }
 
@@ -46,8 +47,8 @@ public class SharedMongoSpringBootstrap extends SpringBootstrap {
     public ConfigurableApplicationContext createApplicationContext() {
         AnnotationConfigApplicationContext applicationContext =
                 (AnnotationConfigApplicationContext) super.createApplicationContext();
-        // share MongoDbFactory
-        importBeanFromMainContext(applicationContext, "mongoDbFactory");
+        // share MongoDatabaseFactory
+        importBeanFromMainContext(applicationContext, "mongoDatabaseFactory");
 
         return applicationContext;
     }

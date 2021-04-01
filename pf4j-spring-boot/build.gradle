@@ -5,12 +5,13 @@ plugins {
 description = "pf4j-spring-boot"
 
 dependencies {
+    api "org.pf4j:pf4j:${pf4jVersion}"
+    
     implementation 'org.springframework.boot:spring-boot'
     implementation 'org.springframework:spring-webmvc'
     implementation 'org.apache.commons:commons-lang3'
     
-    api "org.pf4j:pf4j:${pf4jVersion}"
-    
+    compileOnly 'org.springframework.data:spring-data-mongodb'
     compileOnly 'javax.annotation:javax.annotation-api'
     compileOnly 'javax.servlet:javax.servlet-api'
     
