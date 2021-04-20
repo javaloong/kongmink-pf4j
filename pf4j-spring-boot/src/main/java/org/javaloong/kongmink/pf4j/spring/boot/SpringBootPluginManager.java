@@ -34,14 +34,14 @@ import java.util.*;
 
 /**
  * PluginManager to hold the main ApplicationContext
- * 
+ *
  * @author <a href="https://github.com/hank-cp">Hank CP</a>
  * @author Xu Cheng
  */
 public class SpringBootPluginManager extends DefaultPluginManager implements ApplicationContextAware {
 
     private static final Logger log = LoggerFactory.getLogger(SpringBootPluginManager.class);
-    
+
     private boolean mainApplicationStarted;
     private GenericApplicationContext mainApplicationContext;
     public Map<String, Object> presetProperties = new HashMap<>();
@@ -83,7 +83,7 @@ public class SpringBootPluginManager extends DefaultPluginManager implements App
     public PluginRepository getPluginRepository() {
         return pluginRepository;
     }
-    
+
     protected ConfigurationRepository createConfigurationRepository() {
         String configDir = System.getProperty(PLUGINS_DIR_CONFIG_PROPERTY_NAME);
         Path configPath = configDir != null
@@ -91,10 +91,10 @@ public class SpringBootPluginManager extends DefaultPluginManager implements App
             : getPluginsRoots().stream()
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("No pluginsRoot configured"));
-        
+
         return new DefaultConfigurationRepository(configPath);
     }
-    
+
     public ConfigurationRepository getConfigurationRepository() {
         return configurationRepository;
     }
@@ -208,9 +208,12 @@ public class SpringBootPluginManager extends DefaultPluginManager implements App
 
     private PluginState doStartPlugin(String pluginId, boolean sendEvent) {
         PluginWrapper plugin = getPlugin(pluginId);
+        PluginState previousState = plugin.getPluginState();
         try {
             PluginState pluginState = super.startPlugin(pluginId);
-            if (sendEvent) mainApplicationContext.publishEvent(new PluginStateChangedEvent(mainApplicationContext));
+            if (sendEvent && previousState != pluginState) {
+                mainApplicationContext.publishEvent(new PluginStateChangedEvent(mainApplicationContext));
+            }
             return pluginState;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -223,9 +226,12 @@ public class SpringBootPluginManager extends DefaultPluginManager implements App
 
     private PluginState doStopPlugin(String pluginId, boolean sendEvent) {
         PluginWrapper plugin = getPlugin(pluginId);
+        PluginState previousState = plugin.getPluginState();
         try {
             PluginState pluginState = super.stopPlugin(pluginId);
-            if (sendEvent) mainApplicationContext.publishEvent(new PluginStateChangedEvent(mainApplicationContext));
+            if (sendEvent && previousState != pluginState) {
+                mainApplicationContext.publishEvent(new PluginStateChangedEvent(mainApplicationContext));
+            }
             return pluginState;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -305,11 +311,11 @@ public class SpringBootPluginManager extends DefaultPluginManager implements App
 
         return doStartPlugin(pluginId, true);
     }
-    
+
     @Override
     protected void initialize() {
         super.initialize();
-        
+
         this.configurationRepository = createConfigurationRepository();
     }
 
