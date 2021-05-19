@@ -210,7 +210,7 @@ public class SpringBootstrap extends SpringApplication {
     private final ClassLoader pluginClassLoader;
 
     private final HashSet<String> importBeanNames = new HashSet<>();
-    
+
     private final HashSet<Class<?>> importBeanClasses = new HashSet<>();
 
     private final HashSet<String> importedBeanNames = new HashSet<>();
@@ -220,7 +220,7 @@ public class SpringBootstrap extends SpringApplication {
     private List<String> pluginFirstClasses;
 
     private List<String> pluginOnlyResources;
-    
+
     private boolean pluginConfigEnabled;
 
     /**
@@ -228,7 +228,7 @@ public class SpringBootstrap extends SpringApplication {
      * Generally new an instance and {@link #run(String...)} it
      * in {@link SpringBootPlugin#createSpringBootstrap()} method.
      *
-     * @param plugin the plugin for Spring Boot 
+     * @param plugin the plugin for Spring Boot
      * @param primarySources {@link SpringApplication} that annotated with @SpringBootApplication
      */
     public SpringBootstrap(SpringBootPlugin plugin, Class<?>... primarySources) {
@@ -310,14 +310,14 @@ public class SpringBootstrap extends SpringApplication {
                 pluginOnlyResources.add(pluginOnlyResourcesProp);
             }
         } while (pluginOnlyResourcesProp != null);
-        
+
         pluginConfigEnabled = getProperties(environment, "pluginConfigEnabled", Boolean.class, false);
         // load external plugin configuration properties
         if (pluginConfigEnabled) {
             configurePluginPropertySources(environment);
         }
     }
-    
+
     protected void configurePluginPropertySources(ConfigurableEnvironment environment) {
         String pluginId = plugin.getWrapper().getPluginId();
         ConfigurationRepository configurationRepository = ((SpringBootPluginManager)
@@ -329,7 +329,7 @@ public class SpringBootstrap extends SpringApplication {
         }
     }
 
-    /** 
+    /**
      * Override this methods to customize excluded spring boot configuration
      * @return the exclude configurations
      */
@@ -337,7 +337,7 @@ public class SpringBootstrap extends SpringApplication {
         return DEFAULT_EXCLUDE_CONFIGURATIONS;
     }
 
-    /** 
+    /**
      * Override this methods to customize excluded spring boot application listeners
      * @return the exclude application listeners
      */
@@ -423,7 +423,7 @@ public class SpringBootstrap extends SpringApplication {
             log.info("Bean {} is imported from {} ApplicationContext", beanName,
                     (sourceApplicationContext == mainApplicationContext ? "app" : "plugin"));
             return true;
-        
+
         } catch (NoSuchBeanDefinitionException ex) {
             return false;
         }
@@ -444,7 +444,7 @@ public class SpringBootstrap extends SpringApplication {
                 importedBeanNames.add(beanName);
                 applicationContext.getBeanFactory().autowireBean(bean);
             }
-            log.info("Bean {} is registered from {} ApplicationContext", beanClass.getSimpleName(),
+            log.info("Bean {} is imported from {} ApplicationContext", beanClass.getSimpleName(),
                         (sourceApplicationContext == mainApplicationContext ? "app" : "plugin"));
             return true;
         } catch (NoSuchBeanDefinitionException ex) {
@@ -468,6 +468,7 @@ public class SpringBootstrap extends SpringApplication {
             PluginWrapper dependentPlugin = plugin.getPluginManager().getPlugin(dependency.getPluginId());
             if (dependentPlugin == null) continue;
             SpringBootPlugin sbPlugin = (SpringBootPlugin) dependentPlugin.getPlugin();
+            if (sbPlugin.getApplicationContext() == null) continue; // dependent plugin is not started.
             if (importBean(sbPlugin.getApplicationContext(), applicationContext, beanName)) return true;
         }
         return false;
@@ -479,6 +480,7 @@ public class SpringBootstrap extends SpringApplication {
             PluginWrapper dependentPlugin = plugin.getPluginManager().getPlugin(dependency.getPluginId());
             if (dependentPlugin == null) continue;
             SpringBootPlugin sbPlugin = (SpringBootPlugin) dependentPlugin.getPlugin();
+            if (sbPlugin.getApplicationContext() == null) continue; // dependent plugin is not started.
             if (importBean(sbPlugin.getApplicationContext(), applicationContext, beanClass)) return true;
         }
         return false;
@@ -493,11 +495,11 @@ public class SpringBootstrap extends SpringApplication {
                 String.join("-", StringUtils.splitByCharacterTypeCamelCase(propName)).toLowerCase(), index));
         return prop;
     }
-    
+
     private <T> T getProperties(Environment env, String propName, Class<T> targetType, T defaultValue) {
         T prop = env.getProperty(String.format("pf4j-plugin.%s", propName), targetType);
         if (prop == null) prop = env.getProperty(String.format("pf4j-plugin.%s",
-                String.join("-", StringUtils.splitByCharacterTypeCamelCase(propName)).toLowerCase()), 
+                String.join("-", StringUtils.splitByCharacterTypeCamelCase(propName)).toLowerCase()),
                 targetType, defaultValue);
         return prop;
     }
